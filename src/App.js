@@ -153,7 +153,7 @@ export default function App() {
   useEffect(() => {
     async function fetchJobsFromPython() {
       try {
-        const response = await fetch("http://localhost:8000/jobs");
+        const response = await fetch("https://job-portal-334v.onrender.com/jobs");
         const data = await response.json();
         setPostedJobs(data.jobs); 
         console.log("Python se data aa gaya:", data.jobs);
@@ -184,9 +184,9 @@ export default function App() {
     if (!postForm.title || !postForm.company || !postForm.desc) { showToast(t.fillAll); return; }
     
     try {
-      showToast("Publishing to local database...");
+      showToast("Publishing to cloud database...");
       
-      const response = await fetch("http://localhost:8000/jobs", {
+      const response = await fetch("https://job-portal-334v.onrender.com/jobs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -204,7 +204,7 @@ export default function App() {
         showToast("Job published! ✅");
         
         // Refresh the list directly from the database
-        const refreshRes = await fetch("http://localhost:8000/jobs");
+        const refreshRes = await fetch("https://job-portal-334v.onrender.com/jobs");
         const freshData = await refreshRes.json();
         setPostedJobs(freshData.jobs);
         
@@ -526,8 +526,8 @@ export default function App() {
                       <button onClick={() => shareWhatsApp(selectedJob)} style={{ fontSize: 13, background: "#DCFCE7", color: "#166534", border: "1px solid #BBF7D0", borderRadius: 8, padding: "8px 14px", cursor: "pointer", fontWeight: 600 }}>📲 Share</button>
                     </div>
                     <div style={s.section}><div style={s.sectionTitle}>{t.aboutRole}</div><p style={{ fontSize: 14, color: "#4B5563", lineHeight: 1.7 }}>{selectedJob.desc}</p></div>
-                    <div style={s.section}><div style={s.sectionTitle}>{t.requirements}</div><ul style={{ paddingLeft: "1.2rem", margin: 0 }}>{selectedJob.req.map((r, i) => <li key={i} style={{ fontSize: 14, color: "#4B5563", lineHeight: 1.8 }}>{r}</li>)}</ul></div>
-                    <div style={s.section}><div style={s.sectionTitle}>{t.skills}</div><div>{selectedJob.skills.map((sk) => <span key={sk} style={s.skillTag}>{sk}</span>)}</div></div>
+                    <div style={s.section}><div style={s.sectionTitle}>{t.requirements}</div><ul style={{ paddingLeft: "1.2rem", margin: 0 }}>{(selectedJob.req || []).map((r, i) => <li key={i} style={{ fontSize: 14, color: "#4B5563", lineHeight: 1.8 }}>{r}</li>)}</ul></div>
+<div style={s.section}><div style={s.sectionTitle}>{t.skills}</div><div>{(selectedJob.skills || []).map((sk) => <span key={sk} style={s.skillTag}>{sk}</span>)}</div></div>
                   </>
                 )}
               </div>
