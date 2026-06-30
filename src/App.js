@@ -153,7 +153,8 @@ export default function App() {
   useEffect(() => {
     async function fetchJobsFromPython() {
       try {
-        const response = await fetch("https://job-portal-334v.onrender.com/jobs");
+        // Fix: Added cache buster to force Vercel to get fresh data every time
+        const response = await fetch(`https://job-portal-334v.onrender.com/jobs?t=${new Date().getTime()}`);
         const data = await response.json();
         setPostedJobs(data.jobs); 
         console.log("Python se data aa gaya:", data.jobs);
@@ -203,8 +204,8 @@ export default function App() {
         setPostForm({ title: "", company: "", location: "", salary: "", type: "Full-time", domain: "Farming", desc: "", deadline: "" });
         showToast("Job published! ✅");
         
-        // Refresh the list directly from the database
-        const refreshRes = await fetch("https://job-portal-334v.onrender.com/jobs");
+        // Fix: Added cache buster to force Vercel to fetch newly added job
+        const refreshRes = await fetch(`https://job-portal-334v.onrender.com/jobs?t=${new Date().getTime()}`);
         const freshData = await refreshRes.json();
         setPostedJobs(freshData.jobs);
         
