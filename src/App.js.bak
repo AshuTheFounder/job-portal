@@ -1,0 +1,937 @@
+import { useEffect, useState } from "react";
+import "./App.css";
+
+// =====================
+// TRANSLATIONS
+// =====================
+const lang = {
+  en: {
+    appName: "JobHub",
+    tagline: "Find your next opportunity",
+    sub: "Jobs for everyone — cities, towns & villages",
+    searchPlaceholder: "Job title or company...",
+    search: "Search",
+    allTypes: "All types",
+    allLevels: "All levels",
+    entry: "Entry",
+    mid: "Mid",
+    senior: "Senior",
+    browseJobs: "Browse Jobs",
+    aiMatch: "AI Match",
+    saved: "Saved",
+    postJob: "+ Post Job",
+    selectJob: "Select a job to see details",
+    applyNow: "Apply Now",
+    save: "Save",
+    saved2: "Saved",
+    location: "Location",
+    type: "Type",
+    salary: "Salary",
+    level: "Level",
+    aboutRole: "About the role",
+    requirements: "Requirements",
+    skills: "Skills",
+    posted: "Posted",
+    fullTime: "Full-time",
+    partTime: "Part-time",
+    remote: "Remote",
+    internship: "Internship",
+    dailyWage: "Daily Wage",
+    engineering: "Engineering",
+    design: "Design",
+    marketing: "Marketing",
+    data: "Data",
+    product: "Product",
+    farming: "Farming",
+    construction: "Construction",
+    teaching: "Teaching",
+    healthcare: "Healthcare",
+    aiMatchTitle: "AI Job Matching",
+    aiMatchSub: "Tell us your skills and we'll find the best jobs for you",
+    aiPlaceholder: "e.g. I know driving, farming, construction work, stitching...",
+    matchBtn: "Find My Jobs ✨",
+    matching: "Finding matches...",
+    topMatches: "Your Top Matches",
+    savedJobs: "Saved Jobs",
+    noSaved: "No saved jobs yet",
+    postTitle: "Post a Job",
+    jobTitle: "Job Title",
+    companyName: "Company / Owner Name",
+    jobLocation: "Location (Village / City)",
+    jobSalary: "Salary / Wages",
+    jobType: "Job Type",
+    jobDomain: "Domain",
+    jobDesc: "Job Description",
+    publish: "Publish Job",
+    fillAll: "Please fill all fields",
+    jobPublished: "Job published! ✅",
+    appSubmitted: "Application submitted! ✅",
+    jobSavedMsg: "Job saved! ⭐",
+    jobRemovedMsg: "Removed from saved",
+    noJobs: "No jobs found",
+    employer: "Employer",
+    employee: "Employee",
+    employerDash: "Staff & Attendance",
+    employeeDash: "Employee Tracker",
+    addEmployee: "+ Add Employee",
+    addEmployeeTitle: "Add a Worker",
+    employeeName: "Worker's Name",
+    employeeRole: "Work / Role",
+    wageType: "Pay Type",
+    dailyWageOpt: "Daily Wage",
+    monthlyWageOpt: "Monthly Salary",
+    wageAmount: "Amount (₹)",
+    addBtn: "Add Worker",
+    employeeAdded: "Worker added! ✅",
+    noEmployees: "No workers added yet. Add your first worker to start tracking attendance.",
+    selectEmployeeMsg: "Select a worker to view & mark attendance",
+    thisMonth: "This Month",
+    daysPresent: "Days Present",
+    daysLeave: "Days on Leave",
+    estSalary: "Estimated Salary",
+    tapToMark: "Tap a date below to mark it Present or On Leave",
+    legendPresent: "Present",
+    legendLeave: "On Leave",
+    legendUnmarked: "Not marked",
+    removeWorker: "Remove Worker",
+    perDay: "/day",
+    perMonth: "/month",
+    confirmRemove: "Remove this worker?",
+    applyFormTitle: "Apply for this job",
+    yourName: "Your Name",
+    yourPhone: "Phone Number",
+    yourMessage: "Tell the employer about yourself (optional)",
+    cancel: "Cancel",
+    submitApplication: "Submit Application",
+    applicantsLabel: "applicants",
+    noApplicants: "No applications yet",
+    yourPostedJobs: "Your Posted Jobs & Applicants",
+    noPostedJobsYet: "You haven't posted any jobs yet. Post one above to start receiving applications.",
+    markHired: "Mark as Hired",
+    hired: "Hired ✅",
+    appliedOn: "Applied",
+    call: "Call",
+    verifiedEmployer: "Verified Employer",
+    reportJob: "Report this job",
+    reportSuccess: "Reported! Thanks for keeping it safe.",
+    hiresCount: "People hired",
+    voiceSearch: "बोलकर खोजो",
+    readAloud: "पढ़कर सुनें",
+    nearbyJobs: "नज़दीकी नौकरियां",
+    womenOnly: "महिलाओं के लिए",
+    familyFriendly: "परिवार के साथ सही",
+    governmentScheme: "सरकारी योजना",
+    missedCallApply: "मिस्ड-कॉल से आवेदन",
+    smsAlerts: "SMS अलर्ट",
+    liteMode: "Lite Mode",
+    shareWhatsApp: "WhatsApp पर शेयर करें",
+    referralBonus: "तीन दोस्तों को नौकरी दिलाओ, इनाम पाओ",
+    applyBySMS: "SMS से आवेदन",
+    reportThis: "इस नौकरी की रिपोर्ट करें",
+  },
+  hi: {
+    appName: "जॉबहब",
+    tagline: "अपनी अगली नौकरी खोजें",
+    sub: "सभी के लिए नौकरी — शहर, कस्बे और गाँव",
+    searchPlaceholder: "नौकरी या कंपनी खोजें...",
+    search: "खोजें",
+    allTypes: "सभी प्रकार",
+    allLevels: "सभी स्तर",
+    entry: "शुरुआती",
+    mid: "मध्यम",
+    senior: "वरिष्ठ",
+    browseJobs: "नौकरी देखें",
+    aiMatch: "AI मिलान",
+    saved: "सहेजे",
+    postJob: "+ नौकरी डालें",
+    selectJob: "विवरण देखने के लिए नौकरी चुनें",
+    applyNow: "अभी आवेदन करें",
+    save: "सहेजें",
+    saved2: "सहेजा",
+    location: "स्थान",
+    type: "प्रकार",
+    salary: "वेतन",
+    level: "स्तर",
+    aboutRole: "नौकरी के बारे में",
+    requirements: "आवश्यकताएं",
+    skills: "कौशल",
+    posted: "पोस्ट किया",
+    fullTime: "पूर्णकालिक",
+    partTime: "अंशकालिक",
+    remote: "घर से काम",
+    internship: "इंटर्नशिप",
+    dailyWage: "दैनिक मजदूरी",
+    engineering: "इंजीनियरिंग",
+    design: "डिजाइन",
+    marketing: "मार्केटिंग",
+    data: "डेटा",
+    product: "उत्पाद",
+    farming: "खेती",
+    construction: "निर्माण",
+    teaching: "शिक्षण",
+    healthcare: "स्वास्थ्य",
+    aiMatchTitle: "AI नौकरी मिलान",
+    aiMatchSub: "अपने कौशल बताएं और हम आपके लिए सबसे अच्छी नौकरी ढूंढेंगे",
+    aiPlaceholder: "जैसे: मुझे गाड़ी चलाना, खेती, निर्माण कार्य, सिलाई आता है...",
+    matchBtn: "मेरी नौकरी खोजें ✨",
+    matching: "मिलान हो रहा है...",
+    topMatches: "आपके लिए सबसे अच्छी नौकरियां",
+    savedJobs: "सहेजी गई नौकरियां",
+    noSaved: "कोई नौकरी सहेजी नहीं",
+    postTitle: "नौकरी डालें",
+    jobTitle: "नौकरी का नाम",
+    companyName: "कंपनी / मालिक का नाम",
+    jobLocation: "स्थान (गाँव / शहर)",
+    jobSalary: "वेतन / मजदूरी",
+    jobType: "नौकरी का प्रकार",
+    jobDomain: "क्षेत्र",
+    jobDesc: "नौकरी का विवरण",
+    publish: "नौकरी प्रकाशित करें",
+    fillAll: "कृपया सभी जानकारी भरें",
+    jobPublished: "नौकरी प्रकाशित हो गई! ✅",
+    appSubmitted: "आवेदन हो गया! ✅",
+    jobSavedMsg: "नौकरी सहेजी! ⭐",
+    jobRemovedMsg: "हटा दिया गया",
+    noJobs: "कोई नौकरी नहीं मिली",
+    employer: "नियोक्ता",
+    employee: "कर्मचारी",
+    employerDash: "स्टाफ़ और हाज़िरी",
+    employeeDash: "कर्मचारी ट्रैकर",
+    addEmployee: "+ कर्मचारी जोड़ें",
+    addEmployeeTitle: "कर्मचारी जोड़ें",
+    employeeName: "कर्मचारी का नाम",
+    employeeRole: "काम / पद",
+    wageType: "वेतन प्रकार",
+    dailyWageOpt: "दैनिक मजदूरी",
+    monthlyWageOpt: "मासिक वेतन",
+    wageAmount: "राशि (₹)",
+    addBtn: "कर्मचारी जोड़ें",
+    employeeAdded: "कर्मचारी जोड़ा गया! ✅",
+    noEmployees: "अभी तक कोई कर्मचारी नहीं जोड़ा गया। हाज़िरी देखने के लिए पहला कर्मचारी जोड़ें।",
+    selectEmployeeMsg: "हाज़िरी देखने और भरने के लिए कर्मचारी चुनें",
+    thisMonth: "इस महीने",
+    daysPresent: "उपस्थित दिन",
+    daysLeave: "छुट्टी के दिन",
+    estSalary: "अनुमानित वेतन",
+    tapToMark: "नीचे किसी तारीख पर टैप करें — उपस्थित या छुट्टी अंकित करने के लिए",
+    legendPresent: "उपस्थित",
+    legendLeave: "छुट्टी",
+    legendUnmarked: "अंकित नहीं",
+    removeWorker: "कर्मचारी हटाएं",
+    perDay: "/दिन",
+    perMonth: "/महीना",
+    confirmRemove: "इस कर्मचारी को हटाएं?",
+    applyFormTitle: "इस नौकरी के लिए आवेदन करें",
+    yourName: "आपका नाम",
+    yourPhone: "फ़ोन नंबर",
+    yourMessage: "अपने बारे में बताएं (वैकल्पिक)",
+    cancel: "रद्द करें",
+    submitApplication: "आवेदन भेजें",
+    applicantsLabel: "आवेदक",
+    noApplicants: "अभी कोई आवेदन नहीं आया",
+    yourPostedJobs: "आपकी डाली गई नौकरियां और आवेदक",
+    noPostedJobsYet: "आपने अभी तक कोई नौकरी नहीं डाली। आवेदन पाने के लिए ऊपर नौकरी डालें।",
+    markHired: "नियुक्त करें",
+    hired: "नियुक्त ✅",
+    appliedOn: "आवेदन किया",
+    call: "कॉल करें",
+    verifiedEmployer: "सत्यापित नियोक्ता",
+    reportJob: "इस नौकरी की रिपोर्ट करें",
+    reportSuccess: "रिपोर्ट हो गई! सुरक्षित रखने के लिए धन्यवाद।",
+    hiresCount: "कितने लोगों को नियुक्त किया",
+    voiceSearch: "बोलकर खोजो",
+    readAloud: "पढ़कर सुनें",
+    nearbyJobs: "पास की नौकरियां",
+    womenOnly: "महिलाओं के लिए",
+    familyFriendly: "परिवार के साथ ठीक",
+    governmentScheme: "सरकारी योजना",
+    missedCallApply: "मिस्ड-कॉल से आवेदन",
+    smsAlerts: "SMS अलर्ट",
+    liteMode: "Lite मोड",
+    shareWhatsApp: "WhatsApp पर शेयर करें",
+    referralBonus: "तीन दोस्तों को नौकरी दिलाओ, इनाम पाओ",
+    applyBySMS: "SMS से आवेदन",
+    reportThis: "इस नौकरी की रिपोर्ट करें",
+  },
+};
+
+// =====================
+// JOB DATA
+// =====================
+const initialJobs = [
+  { id: 1, title: "Driver / ड्राइवर", company: "Rajesh Transport", location: "Neemuch, MP", salary: "₹15,000/month", type: "Full-time", domain: "Transport", exp: "Entry", desc: "Need experienced driver for goods transport between Neemuch-Mandsaur-Indore route. Must have valid license.", req: ["Valid driving license", "2+ years experience", "Knowledge of MP roads"], skills: ["Driving", "Navigation"], posted: "Today", verified: true, hires: 24, gender: "all", scheme: "", applyNumber: "08001234123", smsKeyword: "DRIVER" },
+  { id: 2, title: "Kisan Sahayak / किसान सहायक", company: "Mandsaur Krishi Farm", location: "Mandsaur, MP", salary: "₹400/day", type: "Daily Wage", domain: "Farming", exp: "Entry", desc: "Kaam: Fasal katai, beej bona, khet ki dekhbhal. Soyabean aur garlic farm pe kaam.", req: ["Farming knowledge", "Physical fitness", "Local resident preferred"], skills: ["Farming", "Harvesting"], posted: "Today", verified: false, hires: 8, gender: "all", scheme: "Agri Support", applyNumber: "08001234234", smsKeyword: "FARM" },
+  { id: 3, title: "Silai Mistri / सिलाई मिस्त्री", company: "Pooja Garment Center", location: "Jawad, Neemuch", salary: "₹8,000–12,000/month", type: "Full-time", domain: "Skilled Work", exp: "Mid", desc: "Ladies tailor needed for suit, salwar, blouse stitching. Experience in Rajasthani and MP style preferred.", req: ["Stitching experience", "Knowledge of designs", "Own machine preferred"], skills: ["Stitching", "Designing"], posted: "Yesterday", verified: true, hires: 15, gender: "women-only", scheme: "Skill Program", applyNumber: "08001234345", smsKeyword: "TAILOR" },
+  { id: 4, title: "Raj Mistri / राज मिस्त्री", company: "Sharma Construction", location: "Mandsaur, MP", salary: "₹600/day", type: "Daily Wage", domain: "Construction", exp: "Mid", desc: "Experienced mason needed for house construction. Plastering, brickwork, and finishing work.", req: ["5+ years masonry", "Plastering skills", "Team player"], skills: ["Masonry", "Plastering"], posted: "2 days ago", verified: true, hires: 28, gender: "family-friendly", scheme: "Housing Scheme", applyNumber: "08001234456", smsKeyword: "MASON" },
+  { id: 5, title: "School Teacher / स्कूल शिक्षक", company: "Saraswati Vidya Mandir", location: "Singoli, Mandsaur", salary: "₹12,000/month", type: "Full-time", domain: "Teaching", exp: "Mid", desc: "Hindi and Social Science teacher needed for classes 6-10. B.Ed preferred.", req: ["B.Ed or equivalent", "Hindi medium teaching", "Patient and dedicated"], skills: ["Teaching", "Hindi", "Social Science"], posted: "3 days ago", verified: true, hires: 20, gender: "women-only", scheme: "Education Drive", applyNumber: "08001234567", smsKeyword: "TEACH" },
+  { id: 6, title: "Medical Store Helper", company: "Jan Aushadhi Kendra", location: "Neemuch, MP", salary: "₹7,000/month", type: "Full-time", domain: "Healthcare", exp: "Entry", desc: "Helper needed at medical store. Basic medicine knowledge helpful. 10th pass minimum.", req: ["10th pass", "Basic reading/writing", "Honest and punctual"], skills: ["Customer service", "Basic maths"], posted: "Today", verified: false, hires: 9, gender: "all", scheme: "Health Scheme", applyNumber: "08001234678", smsKeyword: "MEDHELP" },
+  { id: 7, title: "Mobile Repair / मोबाइल मिस्त्री", company: "Raju Mobile Shop", location: "Mandsaur, MP", salary: "₹10,000/month", type: "Full-time", domain: "Technical", exp: "Entry", desc: "Mobile phone repair technician needed. Screen replacement, charging port, software issues.", req: ["Mobile repair knowledge", "Basic tools", "Eager to learn"], skills: ["Mobile repair", "Hardware", "Software"], posted: "4 days ago", verified: false, hires: 7, gender: "all", scheme: "Skill Program", applyNumber: "08001234789", smsKeyword: "REPAIR" },
+  { id: 8, title: "Anganwadi Helper", company: "Govt. of MP", location: "Villages, Mandsaur", salary: "₹5,000/month", type: "Full-time", domain: "Government", exp: "Entry", desc: "Anganwadi sahayika needed for village child care center. Local women preferred.", req: ["8th pass minimum", "Local resident", "Care for children"], skills: ["Childcare", "Cooking"], posted: "1 week ago", verified: true, hires: 55, gender: "women-only", scheme: "MGNREGA", applyNumber: "08001234890", smsKeyword: "ANGANWADI" },
+];
+
+const colors = [
+  { bg: "#E6F1FB", text: "#185FA5" },
+  { bg: "#EAF3DE", text: "#3B6D11" },
+  { bg: "#EEEDFE", text: "#3C3489" },
+  { bg: "#FAEEDA", text: "#854F0B" },
+  { bg: "#FAECE7", text: "#993C1D" },
+  { bg: "#FBEAF0", text: "#993556" },
+  { bg: "#E1F5EE", text: "#0F6E56" },
+  { bg: "#FCEBEB", text: "#A32D2D" },
+];
+
+function initials(name) {
+  return name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+}
+
+export default function App() {
+  const [language, setLanguage] = useState("en");
+  const [page, setPage] = useState("browse");
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [savedJobs, setSavedJobs] = useState([]);
+  const [search, setSearch] = useState("");
+  const [filterType, setFilterType] = useState("");
+  const [filterExp, setFilterExp] = useState("");
+  const [toast, setToast] = useState("");
+  const [postedJobs, setPostedJobs] = useState([]);
+  const [postForm, setPostForm] = useState({ title: "", company: "", location: "", salary: "", type: "Full-time", domain: "Farming", desc: "" });
+  const [aiSkills, setAiSkills] = useState("");
+  const [aiResult, setAiResult] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [employees, setEmployees] = useState([
+    { id: 1, name: "Ramesh Kumar", role: "Driver", wageType: "daily", wageAmount: 500, attendance: {} },
+    { id: 2, name: "Sunita Bai", role: "Silai Mistri", wageType: "monthly", wageAmount: 9000, attendance: {} },
+  ]);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [empForm, setEmpForm] = useState({ name: "", role: "", wageType: "daily", wageAmount: "" });
+  const [applications, setApplications] = useState([]);
+  const [applyingJob, setApplyingJob] = useState(null);
+  const [applyForm, setApplyForm] = useState({ name: "", phone: "", message: "" });
+  const [expandedJobId, setExpandedJobId] = useState(null);
+
+  const t = lang[language];
+  const allJobs = [...postedJobs, ...initialJobs];
+
+  const filtered = allJobs.filter((j) => {
+    const q = search.toLowerCase();
+    const matchQ = !q || j.title.toLowerCase().includes(q) || j.company.toLowerCase().includes(q) || j.location.toLowerCase().includes(q);
+    const matchT = !filterType || j.type === filterType;
+    const matchE = !filterExp || j.exp === filterExp;
+    return matchQ && matchT && matchE;
+  });
+
+  function showToast(msg) {
+    setToast(msg);
+    setTimeout(() => setToast(""), 2500);
+  }
+
+  function toggleSave(job) {
+    if (savedJobs.find((j) => j.id === job.id)) {
+      setSavedJobs(savedJobs.filter((j) => j.id !== job.id));
+      showToast(t.jobRemovedMsg);
+    } else {
+      setSavedJobs([...savedJobs, job]);
+      showToast(t.jobSavedMsg);
+    }
+  }
+
+  function handlePost() {
+    if (!postForm.title || !postForm.company || !postForm.desc) {
+      showToast(t.fillAll);
+      return;
+    }
+    const newJob = { ...postForm, id: Date.now(), exp: "Entry", req: ["See description"], skills: [], posted: "Just now" };
+    setPostedJobs([newJob, ...postedJobs]);
+    setPostForm({ title: "", company: "", location: "", salary: "", type: "Full-time", domain: "Farming", desc: "" });
+    showToast(t.jobPublished);
+    setPage("browse");
+  }
+
+  function openApply(job) {
+    setApplyingJob(job);
+    setApplyForm({ name: "", phone: "", message: "" });
+  }
+
+  function submitApplication() {
+    if (!applyForm.name.trim() || !applyForm.phone.trim()) {
+      showToast(t.fillAll);
+      return;
+    }
+    const newApp = {
+      id: Date.now(),
+      jobId: applyingJob.id,
+      jobTitle: applyingJob.title,
+      name: applyForm.name.trim(),
+      phone: applyForm.phone.trim(),
+      message: applyForm.message.trim(),
+      status: "pending",
+      appliedAt: new Date().toLocaleDateString(language === "hi" ? "hi-IN" : "en-IN", { day: "numeric", month: "short" }),
+    };
+    setApplications([newApp, ...applications]);
+    setApplyingJob(null);
+    showToast(t.appSubmitted);
+  }
+
+  function toggleHired(appId) {
+    setApplications((prev) => prev.map((a) => (a.id === appId ? { ...a, status: a.status === "hired" ? "pending" : "hired" } : a)));
+  }
+
+  async function runAIMatch() {
+    if (!aiSkills.trim()) { showToast(t.fillAll); return; }
+    setAiLoading(true);
+    setAiResult("");
+    try {
+      const jobList = allJobs.map((j) => `${j.id}. ${j.title} at ${j.company}, ${j.location} — ${j.salary}`).join("\n");
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-6",
+          max_tokens: 800,
+          system: `You are a helpful career advisor for rural India, especially Neemuch-Mandsaur area of MP. Respond in ${language === "hi" ? "Hindi" : "English"}. Given a candidate's skills and job listings, recommend top 3 matches with simple, encouraging reasons. Format: '1. Job at Company — reason'. Add one short tip. Keep language very simple for village/small town people.`,
+          messages: [{ role: "user", content: `My skills: ${aiSkills}\n\nAvailable jobs:\n${jobList}\n\nTop 3 matches?` }],
+        }),
+      });
+      const data = await res.json();
+      const text = data.content?.map((c) => c.text || "").join("") || "Could not get recommendations.";
+      setAiResult(text);
+    } catch {
+      setAiResult("Could not connect. Please try again.");
+    }
+    setAiLoading(false);
+  }
+
+  // =====================
+  // EMPLOYEE / ATTENDANCE HELPERS
+  // =====================
+  function dateKey(y, m, d) {
+    return `${y}-${m}-${d}`;
+  }
+
+  function handleAddEmployee() {
+    if (!empForm.name || !empForm.role || !empForm.wageAmount) {
+      showToast(t.fillAll);
+      return;
+    }
+    const newEmp = { id: Date.now(), name: empForm.name, role: empForm.role, wageType: empForm.wageType, wageAmount: Number(empForm.wageAmount), attendance: {} };
+    setEmployees([newEmp, ...employees]);
+    setEmpForm({ name: "", role: "", wageType: "daily", wageAmount: "" });
+    showToast(t.employeeAdded);
+  }
+
+  function removeEmployee(id) {
+    if (!window.confirm(t.confirmRemove)) return;
+    setEmployees(employees.filter((e) => e.id !== id));
+    if (selectedEmployee?.id === id) setSelectedEmployee(null);
+  }
+
+  function cycleAttendance(empId, key) {
+    setEmployees((prev) =>
+      prev.map((e) => {
+        if (e.id !== empId) return e;
+        const current = e.attendance[key];
+        const next = { ...e.attendance };
+        if (!current) next[key] = "present";
+        else if (current === "present") next[key] = "leave";
+        else delete next[key];
+        return { ...e, attendance: next };
+      })
+    );
+    setSelectedEmployee((prev) => {
+      if (!prev || prev.id !== empId) return prev;
+      const current = prev.attendance[key];
+      const next = { ...prev.attendance };
+      if (!current) next[key] = "present";
+      else if (current === "present") next[key] = "leave";
+      else delete next[key];
+      return { ...prev, attendance: next };
+    });
+  }
+
+  function monthStats(emp, year, month) {
+    const prefix = `${year}-${month}-`;
+    let present = 0, leave = 0;
+    Object.keys(emp.attendance).forEach((k) => {
+      if (k.startsWith(prefix)) {
+        if (emp.attendance[k] === "present") present++;
+        else if (emp.attendance[k] === "leave") leave++;
+      }
+    });
+    let salary;
+    if (emp.wageType === "daily") {
+      salary = present * emp.wageAmount;
+    } else {
+      const perDay = emp.wageAmount / 30;
+      salary = Math.max(0, Math.round(emp.wageAmount - leave * perDay));
+    }
+    return { present, leave, salary };
+  }
+
+  const s = {
+    app: { fontFamily: "'Noto Sans', system-ui, sans-serif", minHeight: "100vh", background: "#f5f5f5" },
+    navbar: { background: "#fff", borderBottom: "1px solid #eee", padding: "0 1rem", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100 },
+    logo: { fontWeight: 700, fontSize: 18, color: "#185FA5", display: "flex", alignItems: "center", gap: 6 },
+    dot: { width: 9, height: 9, background: "#185FA5", borderRadius: "50%" },
+    langBar: { display: "flex", gap: 4 },
+    langBtn: (active) => ({ background: active ? "#185FA5" : "#f0f0f0", color: active ? "#fff" : "#555", border: "none", borderRadius: 6, padding: "4px 10px", fontSize: 12, cursor: "pointer", fontWeight: active ? 700 : 400 }),
+    navLinks: { display: "flex", gap: 2 },
+    navBtn: (active) => ({ background: active ? "#E6F1FB" : "none", border: "none", padding: "5px 10px", borderRadius: 8, fontSize: 13, cursor: "pointer", color: active ? "#185FA5" : "#666", fontWeight: active ? 600 : 400 }),
+    postBtn: { background: "#185FA5", color: "#fff", border: "none", borderRadius: 8, padding: "6px 12px", fontSize: 13, fontWeight: 600, cursor: "pointer" },
+    hero: { background: "linear-gradient(135deg, #185FA5 0%, #0C447C 100%)", padding: "2rem 1rem 1.5rem", textAlign: "center" },
+    h1: { fontSize: 24, fontWeight: 700, color: "#fff", marginBottom: 4 },
+    sub: { color: "#B5D4F4", fontSize: 14, marginBottom: "1rem" },
+    searchRow: { display: "flex", gap: 8, maxWidth: 500, margin: "0 auto" },
+    input: { flex: 1, padding: "10px 14px", border: "none", borderRadius: 8, fontSize: 14, outline: "none" },
+    searchBtn: { background: "#FAC775", color: "#412402", border: "none", borderRadius: 8, padding: "10px 18px", fontSize: 14, fontWeight: 700, cursor: "pointer" },
+    filtersBar: { display: "flex", gap: 6, padding: "0.7rem 1rem", background: "#fff", borderBottom: "1px solid #eee", overflowX: "auto" },
+    select: { border: "1px solid #ddd", background: "#fff", padding: "5px 8px", borderRadius: 20, fontSize: 12, cursor: "pointer" },
+    chip: (active) => ({ border: `1px solid ${active ? "#85B7EB" : "#ddd"}`, background: active ? "#E6F1FB" : "#fff", padding: "4px 12px", borderRadius: 20, fontSize: 12, cursor: "pointer", color: active ? "#185FA5" : "#666", whiteSpace: "nowrap" }),
+    layout: { display: "flex", maxHeight: "calc(100vh - 180px)" },
+    jobList: { width: 380, borderRight: "1px solid #eee", overflowY: "auto", padding: "0.8rem" },
+    jobCard: (selected) => ({ background: "#fff", border: `${selected ? 2 : 1}px solid ${selected ? "#378ADD" : "#eee"}`, borderRadius: 12, padding: "0.9rem", marginBottom: 8, cursor: "pointer", transition: "border-color 0.15s" }),
+    cardTop: { display: "flex", alignItems: "center", gap: 8, marginBottom: 6 },
+    logoBox: (bg, text) => ({ width: 38, height: 38, borderRadius: 8, background: bg, color: text, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 13, flexShrink: 0 }),
+    jobTitle: { fontSize: 14, fontWeight: 600, color: "#111", lineHeight: 1.3 },
+    jobSub: { fontSize: 12, color: "#666" },
+    badgeRow: { display: "flex", gap: 5, flexWrap: "wrap" },
+    badge: (bg, color) => ({ fontSize: 11, padding: "2px 8px", borderRadius: 20, background: bg, color, fontWeight: 500 }),
+    detail: { flex: 1, padding: "1.5rem", overflowY: "auto" },
+    empty: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 300, color: "#aaa", fontSize: 14, gap: 8 },
+    detailTitle: { fontSize: 20, fontWeight: 700, color: "#111", marginBottom: 2 },
+    detailSub: { fontSize: 14, color: "#666", marginBottom: "1rem" },
+    metaRow: { display: "flex", gap: 12, background: "#f8f8f8", borderRadius: 8, padding: "0.8rem", marginBottom: "1rem", flexWrap: "wrap" },
+    metaItem: { fontSize: 13, color: "#555" },
+    applyBtn: { background: "#185FA5", color: "#fff", border: "none", borderRadius: 8, padding: "10px 22px", fontSize: 14, fontWeight: 700, cursor: "pointer" },
+    saveBtn: (saved) => ({ background: saved ? "#E6F1FB" : "#fff", border: "1px solid #ddd", borderRadius: 8, padding: "10px 14px", cursor: "pointer", fontSize: 14, color: saved ? "#185FA5" : "#666" }),
+    section: { marginBottom: "1.2rem" },
+    sectionTitle: { fontSize: 14, fontWeight: 700, color: "#111", marginBottom: 6, borderBottom: "1px solid #eee", paddingBottom: 6 },
+    skillTag: { display: "inline-block", background: "#f0f0f0", border: "1px solid #e0e0e0", borderRadius: 20, fontSize: 12, padding: "3px 10px", marginRight: 6, marginBottom: 6, color: "#555" },
+    page: { maxWidth: 640, margin: "0 auto", padding: "1.5rem" },
+    formLabel: { display: "block", fontSize: 13, color: "#555", marginBottom: 4, fontWeight: 500 },
+    formInput: { width: "100%", padding: "10px 12px", border: "1px solid #ddd", borderRadius: 8, fontSize: 14, marginBottom: "1rem", outline: "none", boxSizing: "border-box", fontFamily: "inherit" },
+    formGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 },
+    submitBtn: { background: "#185FA5", color: "#fff", border: "none", borderRadius: 8, padding: "12px", fontSize: 15, fontWeight: 700, cursor: "pointer", width: "100%", marginTop: 4 },
+    aiBox: { background: "#fff", border: "1px solid #ddd", borderRadius: 12, padding: "1rem", marginBottom: "1rem" },
+    aiBtn: { background: "#534AB7", color: "#fff", border: "none", borderRadius: 8, padding: "10px 20px", fontSize: 14, fontWeight: 700, cursor: "pointer" },
+    aiResult: { background: "#fff", border: "1px solid #ddd", borderRadius: 12, padding: "1.2rem", marginTop: "1rem" },
+    toast: { position: "fixed", bottom: "1.5rem", right: "1.5rem", background: "#185FA5", color: "#fff", padding: "10px 18px", borderRadius: 8, fontSize: 14, zIndex: 999, display: toast ? "block" : "none", boxShadow: "0 4px 12px rgba(0,0,0,0.15)" },
+    comingSoon: { textAlign: "center", padding: "3rem 1.5rem", color: "#666" },
+    empLayout: { display: "flex", maxHeight: "calc(100vh - 120px)" },
+    empList: { width: 300, borderRight: "1px solid #eee", overflowY: "auto", padding: "0.8rem" },
+    empAddBox: { background: "#fff", border: "1px dashed #ccc", borderRadius: 12, padding: "0.8rem", marginBottom: 10 },
+    empCard: (selected) => ({ background: selected ? "#E6F1FB" : "#fff", border: `${selected ? 2 : 1}px solid ${selected ? "#378ADD" : "#eee"}`, borderRadius: 12, padding: "0.8rem", marginBottom: 8, cursor: "pointer" }),
+    empAvatar: (bg, text) => ({ width: 36, height: 36, borderRadius: "50%", background: bg, color: text, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 13, flexShrink: 0 }),
+    empDetail: { flex: 1, padding: "1.5rem", overflowY: "auto" },
+    statRow: { display: "flex", gap: 12, marginBottom: "1.2rem", flexWrap: "wrap" },
+    statBox: (bg, color) => ({ background: bg, color, borderRadius: 12, padding: "0.9rem 1.2rem", flex: 1, minWidth: 130 }),
+    statNum: { fontSize: 24, fontWeight: 700, lineHeight: 1.1 },
+    statLabel: { fontSize: 12, marginTop: 2, opacity: 0.85 },
+    calGrid: { display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6, marginTop: 10 },
+    calCell: (status) => ({
+      aspectRatio: "1", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center",
+      fontSize: 13, cursor: "pointer", fontWeight: 600,
+      background: status === "present" ? "#D9F0E0" : status === "leave" ? "#FBE6D4" : "#f2f2f2",
+      color: status === "present" ? "#1B7A43" : status === "leave" ? "#A35A0B" : "#999",
+      border: status ? "none" : "1px solid #e5e5e5",
+    }),
+    legendRow: { display: "flex", gap: 14, marginTop: 10, fontSize: 12, color: "#666", flexWrap: "wrap" },
+    legendDot: (color) => ({ display: "inline-block", width: 10, height: 10, borderRadius: 3, background: color, marginRight: 5, verticalAlign: "middle" }),
+    removeLink: { background: "none", border: "none", color: "#A32D2D", fontSize: 12, cursor: "pointer", padding: 0, textDecoration: "underline" },
+    modalOverlay: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "1rem" },
+    modalBox: { background: "#fff", borderRadius: 14, padding: "1.5rem", width: "100%", maxWidth: 420, boxShadow: "0 12px 40px rgba(0,0,0,0.2)", boxSizing: "border-box" },
+    applicantCard: { background: "#f8f8f8", borderRadius: 8, padding: "0.7rem 0.9rem", marginBottom: 8 },
+    hireBtn: (hired) => ({ background: hired ? "#D9F0E0" : "#fff", color: hired ? "#1B7A43" : "#185FA5", border: `1px solid ${hired ? "#1B7A43" : "#185FA5"}`, borderRadius: 20, padding: "4px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer" }),
+    postedJobCard: { background: "#fff", border: "1px solid #eee", borderRadius: 12, padding: "0.9rem 1rem", marginBottom: 10 },
+  };
+
+  return (
+    <div style={s.app}>
+      {/* Navbar */}
+      <nav style={s.navbar}>
+        <div style={s.logo}><div style={s.dot}></div> {t.appName}</div>
+        <div style={s.navLinks}>
+          <button style={s.navBtn(page === "browse")} onClick={() => setPage("browse")}>{t.browseJobs}</button>
+          <button style={s.navBtn(page === "ai")} onClick={() => setPage("ai")}>{t.aiMatch}</button>
+          <button style={s.navBtn(page === "saved")} onClick={() => setPage("saved")}>{t.saved} ({savedJobs.length})</button>
+          <button style={s.navBtn(page === "employer")} onClick={() => setPage("employer")}>{t.employerDash}</button>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={s.langBar}>
+            <button style={s.langBtn(language === "en")} onClick={() => setLanguage("en")}>EN</button>
+            <button style={s.langBtn(language === "hi")} onClick={() => setLanguage("hi")}>हि</button>
+          </div>
+          <button style={s.postBtn} onClick={() => setPage("post")}>{t.postJob}</button>
+        </div>
+      </nav>
+
+      {/* Browse Page */}
+      {page === "browse" && (
+        <>
+          <div style={s.hero}>
+            <h1 style={s.h1}>{t.tagline}</h1>
+            <p style={s.sub}>{t.sub}</p>
+            <div style={s.searchRow}>
+              <input style={s.input} placeholder={t.searchPlaceholder} value={search} onChange={(e) => setSearch(e.target.value)} />
+              <button style={s.searchBtn}>{t.search}</button>
+            </div>
+          </div>
+
+          <div style={s.filtersBar}>
+            <select style={s.select} value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+              <option value="">{t.allTypes}</option>
+              <option value="Full-time">{t.fullTime}</option>
+              <option value="Part-time">{t.partTime}</option>
+              <option value="Remote">{t.remote}</option>
+              <option value="Daily Wage">{t.dailyWage}</option>
+              <option value="Internship">{t.internship}</option>
+            </select>
+            {[["", t.allLevels], ["Entry", t.entry], ["Mid", t.mid], ["Senior", t.senior]].map(([val, label]) => (
+              <button key={val} style={s.chip(filterExp === val)} onClick={() => setFilterExp(val)}>{label}</button>
+            ))}
+          </div>
+
+          <div style={s.layout}>
+            <div style={s.jobList}>
+              {filtered.length === 0 && <p style={{ color: "#aaa", textAlign: "center", marginTop: "2rem", fontSize: 14 }}>{t.noJobs}</p>}
+              {filtered.map((job, i) => {
+                const c = colors[i % colors.length];
+                const isSaved = !!savedJobs.find((j) => j.id === job.id);
+                return (
+                  <div key={job.id} style={s.jobCard(selectedJob?.id === job.id)} onClick={() => setSelectedJob(job)}>
+                    <div style={s.cardTop}>
+                      <div style={s.logoBox(c.bg, c.text)}>{initials(job.company)}</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={s.jobTitle}>{job.title}</div>
+                        <div style={s.jobSub}>{job.company} · {job.location}</div>
+                      </div>
+                      <button onClick={(e) => { e.stopPropagation(); toggleSave(job); }}
+                        style={{ background: "none", border: "none", cursor: "pointer", fontSize: 20, color: isSaved ? "#FAC775" : "#ddd", lineHeight: 1 }}>★</button>
+                    </div>
+                    <div style={s.badgeRow}>
+                      <span style={s.badge("#E6F1FB", "#185FA5")}>{job.type}</span>
+                      <span style={s.badge("#EAF3DE", "#3B6D11")}>{job.domain}</span>
+                      <span style={s.badge("#FAEEDA", "#854F0B")}>{job.salary}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div style={s.detail}>
+              {!selectedJob ? (
+                <div style={s.empty}>
+                  <span style={{ fontSize: 48 }}>💼</span>
+                  <p>{t.selectJob}</p>
+                </div>
+              ) : (
+                <>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem", gap: 8 }}>
+                    <div>
+                      <div style={s.detailTitle}>{selectedJob.title}</div>
+                      <div style={s.detailSub}>{selectedJob.company} · {selectedJob.location} · {t.posted} {selectedJob.posted}</div>
+                    </div>
+                    <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                      <button style={s.saveBtn(!!savedJobs.find((j) => j.id === selectedJob.id))} onClick={() => toggleSave(selectedJob)}>
+                        {savedJobs.find((j) => j.id === selectedJob.id) ? `★ ${t.saved2}` : `☆ ${t.save}`}
+                      </button>
+                      <button style={s.applyBtn} onClick={() => openApply(selectedJob)}>{t.applyNow}</button>
+                    </div>
+                  </div>
+                  <div style={s.metaRow}>
+                    <span style={s.metaItem}>📍 {selectedJob.location}</span>
+                    <span style={s.metaItem}>⏰ {selectedJob.type}</span>
+                    <span style={s.metaItem}>💰 {selectedJob.salary}</span>
+                    <span style={s.metaItem}>📈 {selectedJob.exp}</span>
+                  </div>
+                  <div style={s.section}>
+                    <div style={s.sectionTitle}>{t.aboutRole}</div>
+                    <p style={{ fontSize: 14, color: "#555", lineHeight: 1.7 }}>{selectedJob.desc}</p>
+                  </div>
+                  <div style={s.section}>
+                    <div style={s.sectionTitle}>{t.requirements}</div>
+                    <ul style={{ paddingLeft: "1.2rem" }}>
+                      {selectedJob.req.map((r, i) => <li key={i} style={{ fontSize: 14, color: "#555", lineHeight: 1.8 }}>{r}</li>)}
+                    </ul>
+                  </div>
+                  <div style={s.section}>
+                    <div style={s.sectionTitle}>{t.skills}</div>
+                    <div>{selectedJob.skills.map((sk) => <span key={sk} style={s.skillTag}>{sk}</span>)}</div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* AI Match */}
+      {page === "ai" && (
+        <div style={s.page}>
+          <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 6 }}>{t.aiMatchTitle}</h2>
+          <p style={{ color: "#666", fontSize: 14, marginBottom: "1.2rem" }}>{t.aiMatchSub}</p>
+          <div style={s.aiBox}>
+            <textarea style={{ width: "100%", border: "none", outline: "none", fontSize: 14, lineHeight: 1.6, resize: "vertical", minHeight: 90, background: "transparent", fontFamily: "inherit" }}
+              placeholder={t.aiPlaceholder} value={aiSkills} onChange={(e) => setAiSkills(e.target.value)} />
+          </div>
+          <button style={s.aiBtn} onClick={runAIMatch} disabled={aiLoading}>
+            {aiLoading ? t.matching : t.matchBtn}
+          </button>
+          {aiResult && (
+            <div style={s.aiResult}>
+              <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: "0.75rem" }}>✨ {t.topMatches}</h3>
+              <p style={{ fontSize: 14, color: "#555", lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{aiResult}</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Saved */}
+      {page === "saved" && (
+        <div style={s.page}>
+          <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: "1.2rem" }}>{t.savedJobs}</h2>
+          {savedJobs.length === 0 ? (
+            <div style={s.empty}><span style={{ fontSize: 48 }}>🔖</span><p>{t.noSaved}</p></div>
+          ) : (
+            savedJobs.map((job, i) => {
+              const c = colors[i % colors.length];
+              return (
+                <div key={job.id} style={s.jobCard(false)} onClick={() => { setSelectedJob(job); setPage("browse"); }}>
+                  <div style={s.cardTop}>
+                    <div style={s.logoBox(c.bg, c.text)}>{initials(job.company)}</div>
+                    <div><div style={s.jobTitle}>{job.title}</div><div style={s.jobSub}>{job.company} · {job.location}</div></div>
+                    <span style={s.badge("#FAEEDA", "#854F0B")}>{job.salary}</span>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+
+      {/* Staff & Attendance */}
+      {page === "employer" && (() => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const monthName = now.toLocaleDateString(language === "hi" ? "hi-IN" : "en-IN", { month: "long", year: "numeric" });
+
+        return (
+          <div style={s.empLayout}>
+            <div style={s.empList}>
+              <div style={s.empAddBox}>
+                <label style={s.formLabel}>{t.employeeName}</label>
+                <input style={{ ...s.formInput, marginBottom: 8 }} placeholder="e.g. Ramesh Kumar" value={empForm.name} onChange={(e) => setEmpForm({ ...empForm, name: e.target.value })} />
+                <label style={s.formLabel}>{t.employeeRole}</label>
+                <input style={{ ...s.formInput, marginBottom: 8 }} placeholder="e.g. Driver, Mistri" value={empForm.role} onChange={(e) => setEmpForm({ ...empForm, role: e.target.value })} />
+                <label style={s.formLabel}>{t.wageType}</label>
+                <select style={{ ...s.formInput, marginBottom: 8 }} value={empForm.wageType} onChange={(e) => setEmpForm({ ...empForm, wageType: e.target.value })}>
+                  <option value="daily">{t.dailyWageOpt}</option>
+                  <option value="monthly">{t.monthlyWageOpt}</option>
+                </select>
+                <label style={s.formLabel}>{t.wageAmount}</label>
+                <input type="number" style={{ ...s.formInput, marginBottom: 8 }} placeholder="e.g. 500" value={empForm.wageAmount} onChange={(e) => setEmpForm({ ...empForm, wageAmount: e.target.value })} />
+                <button style={s.submitBtn} onClick={handleAddEmployee}>{t.addBtn}</button>
+              </div>
+
+              {employees.length === 0 && <p style={{ color: "#aaa", textAlign: "center", marginTop: "1rem", fontSize: 13 }}>{t.noEmployees}</p>}
+              {employees.map((emp, i) => {
+                const c = colors[i % colors.length];
+                const stats = monthStats(emp, year, month);
+                return (
+                  <div key={emp.id} style={s.empCard(selectedEmployee?.id === emp.id)} onClick={() => setSelectedEmployee(emp)}>
+                    <div style={s.cardTop}>
+                      <div style={s.empAvatar(c.bg, c.text)}>{initials(emp.name)}</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={s.jobTitle}>{emp.name}</div>
+                        <div style={s.jobSub}>{emp.role}</div>
+                      </div>
+                    </div>
+                    <div style={s.badgeRow}>
+                      <span style={s.badge("#D9F0E0", "#1B7A43")}>{stats.present} {t.daysPresent}</span>
+                      <span style={s.badge("#FBE6D4", "#A35A0B")}>{stats.leave} {t.daysLeave}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div style={s.empDetail}>
+              {!selectedEmployee ? (
+                <div style={s.empty}>
+                  <span style={{ fontSize: 48 }}>🧑‍🔧</span>
+                  <p>{t.selectEmployeeMsg}</p>
+                </div>
+              ) : (() => {
+                const emp = employees.find((e) => e.id === selectedEmployee.id) || selectedEmployee;
+                const stats = monthStats(emp, year, month);
+                return (
+                  <>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem", gap: 8 }}>
+                      <div>
+                        <div style={s.detailTitle}>{emp.name}</div>
+                        <div style={s.detailSub}>{emp.role} · {emp.wageType === "daily" ? `₹${emp.wageAmount}${t.perDay}` : `₹${emp.wageAmount}${t.perMonth}`}</div>
+                      </div>
+                      <button style={s.removeLink} onClick={() => removeEmployee(emp.id)}>{t.removeWorker}</button>
+                    </div>
+
+                    <div style={s.statRow}>
+                      <div style={s.statBox("#E6F1FB", "#185FA5")}>
+                        <div style={s.statNum}>{stats.present}</div>
+                        <div style={s.statLabel}>{t.daysPresent}</div>
+                      </div>
+                      <div style={s.statBox("#FBE6D4", "#A35A0B")}>
+                        <div style={s.statNum}>{stats.leave}</div>
+                        <div style={s.statLabel}>{t.daysLeave}</div>
+                      </div>
+                      <div style={s.statBox("#EAF3DE", "#3B6D11")}>
+                        <div style={s.statNum}>₹{stats.salary}</div>
+                        <div style={s.statLabel}>{t.estSalary}</div>
+                      </div>
+                    </div>
+
+                    <div style={s.section}>
+                      <div style={s.sectionTitle}>{t.thisMonth} — {monthName}</div>
+                      <p style={{ fontSize: 13, color: "#888", marginTop: 6, marginBottom: 0 }}>{t.tapToMark}</p>
+                      <div style={s.calGrid}>
+                        {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((day) => {
+                          const key = dateKey(year, month, day);
+                          const status = emp.attendance[key];
+                          return (
+                            <div key={day} style={s.calCell(status)} onClick={() => cycleAttendance(emp.id, key)}>
+                              {day}
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <div style={s.legendRow}>
+                        <span><span style={s.legendDot("#1B7A43")}></span>{t.legendPresent}</span>
+                        <span><span style={s.legendDot("#A35A0B")}></span>{t.legendLeave}</span>
+                        <span><span style={s.legendDot("#ccc")}></span>{t.legendUnmarked}</span>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Post Job */}
+      {page === "post" && (
+        <div style={s.page}>
+          <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: "1.2rem" }}>{t.postTitle}</h2>
+          <div style={s.formGrid}>
+            <div><label style={s.formLabel}>{t.jobTitle}</label>
+              <input style={s.formInput} placeholder="e.g. Driver, Mistri, Teacher" value={postForm.title} onChange={(e) => setPostForm({ ...postForm, title: e.target.value })} /></div>
+            <div><label style={s.formLabel}>{t.companyName}</label>
+              <input style={s.formInput} placeholder="e.g. Ramesh Ji ka Kaam" value={postForm.company} onChange={(e) => setPostForm({ ...postForm, company: e.target.value })} /></div>
+          </div>
+          <div style={s.formGrid}>
+            <div><label style={s.formLabel}>{t.jobLocation}</label>
+              <input style={s.formInput} placeholder="e.g. Neemuch, Mandsaur" value={postForm.location} onChange={(e) => setPostForm({ ...postForm, location: e.target.value })} /></div>
+            <div><label style={s.formLabel}>{t.jobSalary}</label>
+              <input style={s.formInput} placeholder="e.g. ₹500/day or ₹10,000/month" value={postForm.salary} onChange={(e) => setPostForm({ ...postForm, salary: e.target.value })} /></div>
+          </div>
+          <div style={s.formGrid}>
+            <div><label style={s.formLabel}>{t.jobType}</label>
+              <select style={s.formInput} value={postForm.type} onChange={(e) => setPostForm({ ...postForm, type: e.target.value })}>
+                <option value="Full-time">{t.fullTime}</option>
+                <option value="Part-time">{t.partTime}</option>
+                <option value="Daily Wage">{t.dailyWage}</option>
+                <option value="Internship">{t.internship}</option>
+              </select></div>
+            <div><label style={s.formLabel}>{t.jobDomain}</label>
+              <select style={s.formInput} value={postForm.domain} onChange={(e) => setPostForm({ ...postForm, domain: e.target.value })}>
+                <option>Farming</option>
+                <option>Construction</option>
+                <option>Teaching</option>
+                <option>Healthcare</option>
+                <option>Transport</option>
+                <option>Skilled Work</option>
+                <option>Government</option>
+                <option>Technical</option>
+                <option>Engineering</option>
+                <option>Other</option>
+              </select></div>
+          </div>
+          <label style={s.formLabel}>{t.jobDesc}</label>
+          <textarea style={{ ...s.formInput, minHeight: 100, resize: "vertical" }}
+            placeholder="Kaam ke baare mein batayen / काम के बारे में बताएं..." value={postForm.desc} onChange={(e) => setPostForm({ ...postForm, desc: e.target.value })} />
+          <button style={s.submitBtn} onClick={handlePost}>{t.publish}</button>
+
+          <div style={{ marginTop: "2.5rem", paddingTop: "1.5rem", borderTop: "1px solid #eee" }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: "1rem" }}>{t.yourPostedJobs}</h2>
+            {postedJobs.length === 0 ? (
+              <p style={{ color: "#aaa", fontSize: 14 }}>{t.noPostedJobsYet}</p>
+            ) : (
+              postedJobs.map((job) => {
+                const apps = applications.filter((a) => a.jobId === job.id);
+                const expanded = expandedJobId === job.id;
+                return (
+                  <div key={job.id} style={s.postedJobCard}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                      <div>
+                        <div style={s.jobTitle}>{job.title}</div>
+                        <div style={s.jobSub}>{job.company} · {job.location}</div>
+                      </div>
+                      <button style={s.chip(expanded)} onClick={() => setExpandedJobId(expanded ? null : job.id)}>
+                        {apps.length} {t.applicantsLabel} {expanded ? "▲" : "▼"}
+                      </button>
+                    </div>
+                    {expanded && (
+                      <div style={{ marginTop: 10, borderTop: "1px solid #f0f0f0", paddingTop: 10 }}>
+                        {apps.length === 0 ? (
+                          <p style={{ fontSize: 13, color: "#aaa" }}>{t.noApplicants}</p>
+                        ) : (
+                          apps.map((a) => (
+                            <div key={a.id} style={s.applicantCard}>
+                              <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+                                <strong style={{ fontSize: 14 }}>{a.name}</strong>
+                                <span style={{ fontSize: 12, color: "#888", whiteSpace: "nowrap" }}>{t.appliedOn} {a.appliedAt}</span>
+                              </div>
+                              {a.message && <p style={{ fontSize: 13, color: "#555", margin: "4px 0" }}>{a.message}</p>}
+                              <div style={{ display: "flex", gap: 10, marginTop: 6, alignItems: "center", flexWrap: "wrap" }}>
+                                <a href={`tel:${a.phone}`} style={{ fontSize: 13, color: "#185FA5", textDecoration: "none", fontWeight: 600 }}>📞 {a.phone}</a>
+                                <button style={s.hireBtn(a.status === "hired")} onClick={() => toggleHired(a.id)}>
+                                  {a.status === "hired" ? t.hired : t.markHired}
+                                </button>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Apply Modal */}
+      {applyingJob && (
+        <div style={s.modalOverlay} onClick={() => setApplyingJob(null)}>
+          <div style={s.modalBox} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 2 }}>{t.applyFormTitle}</h3>
+            <p style={{ fontSize: 13, color: "#666", marginBottom: 14 }}>{applyingJob.title} · {applyingJob.company}</p>
+            <label style={s.formLabel}>{t.yourName}</label>
+            <input style={s.formInput} placeholder="e.g. Suresh Patel" value={applyForm.name} onChange={(e) => setApplyForm({ ...applyForm, name: e.target.value })} />
+            <label style={s.formLabel}>{t.yourPhone}</label>
+            <input style={s.formInput} type="tel" placeholder="e.g. 98765 43210" value={applyForm.phone} onChange={(e) => setApplyForm({ ...applyForm, phone: e.target.value })} />
+            <label style={s.formLabel}>{t.yourMessage}</label>
+            <textarea style={{ ...s.formInput, minHeight: 70, resize: "vertical" }} value={applyForm.message} onChange={(e) => setApplyForm({ ...applyForm, message: e.target.value })} />
+            <div style={{ display: "flex", gap: 8 }}>
+              <button style={{ ...s.saveBtn(false), flex: 1 }} onClick={() => setApplyingJob(null)}>{t.cancel}</button>
+              <button style={{ ...s.submitBtn, flex: 1, marginTop: 0 }} onClick={submitApplication}>{t.submitApplication}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div style={s.toast}>{toast}</div>
+    </div>
+  );
+}
