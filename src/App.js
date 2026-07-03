@@ -4,7 +4,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "./App.css";
 import { auth, provider } from "./firebase"; 
-import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth"; 
+import { signInWithPopup, signOut, onAuthStateChanged, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
 // Fix for Leaflet's default marker icons in React
 import icon from "leaflet/dist/images/marker-icon.png";
@@ -109,9 +109,24 @@ export default function App() {
   const [online, setOnline] = useState(navigator.onLine);
   const [darkMode, setDarkMode] = useState(false);
   const [mapAreaFilter, setMapAreaFilter] = useState("");
+  
+  // NEW STATE VARIABLES FOR OTP LOGIN
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [otp, setOtp] = useState("");
+  const [confirmationResult, setConfirmationResult] = useState(null);
 
   const t = lang[language];
   const allJobs = [...postedJobs, ...initialJobs];
+
+  // Recaptcha initialization
+  useEffect(() => {
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible',
+      });
+    }
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -120,6 +135,7 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
+  // Login Functions
   const handleLogin = async () => {
     try {
       await signInWithPopup(auth, provider);
@@ -133,6 +149,38 @@ export default function App() {
   const handleLogout = () => {
     signOut(auth);
     showToast("Logged out.");
+  };
+
+  const requestOTP = async () => {
+    if (!phoneNumber || phoneNumber.length < 10) { 
+      showToast("Enter a valid phone number"); 
+      return; 
+    }
+    try {
+      showToast("Sending OTP...");
+      const formattedNumber = phoneNumber.startsWith("+") ? phoneNumber : `+91${phoneNumber}`;
+      const appVerifier = window.recaptchaVerifier;
+      const result = await signInWithPhoneNumber(auth, formattedNumber, appVerifier);
+      setConfirmationResult(result);
+      showToast("OTP sent! ✅");
+    } catch (error) {
+      showToast("Error: " + error.message);
+      console.error(error);
+    }
+  };
+
+  const verifyOTP = async () => {
+    if (!otp) return;
+    try {
+      await confirmationResult.confirm(otp);
+      showToast("Login Successful! 🎉");
+      setShowLoginModal(false);
+      setConfirmationResult(null);
+      setPhoneNumber("");
+      setOtp("");
+    } catch (error) {
+      showToast("Wrong OTP! ❌");
+    }
   };
 
   useEffect(() => {
@@ -153,7 +201,6 @@ export default function App() {
   useEffect(() => {
     async function fetchJobsFromPython() {
       try {
-        // Fix: Added cache buster to force Vercel to get fresh data every time
         const response = await fetch(`https://job-portal-334v.onrender.com/jobs?t=${new Date().getTime()}`);
         const data = await response.json();
         setPostedJobs(data.jobs); 
@@ -204,7 +251,6 @@ export default function App() {
         setPostForm({ title: "", company: "", location: "", salary: "", type: "Full-time", domain: "Farming", desc: "", deadline: "" });
         showToast("Job published! ✅");
         
-        // Fix: Added cache buster to force Vercel to fetch newly added job
         const refreshRes = await fetch(`https://job-portal-334v.onrender.com/jobs?t=${new Date().getTime()}`);
         const freshData = await refreshRes.json();
         setPostedJobs(freshData.jobs);
@@ -317,7 +363,7 @@ export default function App() {
     aiBox: { background: "#fff", border: "1px solid #E5E7EB", borderRadius: 12, padding: "1.2rem", marginBottom: "1rem", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" },
     aiBtn: { background: "#8B5CF6", color: "#fff", border: "none", borderRadius: 8, padding: "12px 20px", fontSize: 14, fontWeight: 700, cursor: "pointer" }, 
     aiResult: { background: "#F5F3FF", border: "1px solid #DDD6FE", borderRadius: 12, padding: "1.2rem", marginTop: "1rem" },
-    toast: { position: "fixed", bottom: "1.5rem", right: "1.5rem", background: "#1F2937", color: "#fff", padding: "12px 20px", borderRadius: 8, fontSize: 14, zIndex: 999, display: toast ? "block" : "none", boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)", fontWeight: 500 },
+    toast: { position: "fixed", bottom: "1.5rem", right: "1.5rem", background: "#1F2937", color: "#fff", padding: "12px 20px", borderRadius: 8, fontSize: 14, zIndex: 9999, display: toast ? "block" : "none", boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)", fontWeight: 500 },
     
     statRow: { display: "flex", gap: 12, marginBottom: "1.5rem", flexWrap: "wrap" },
     statBox: (bg, color) => ({ background: "#fff", color: color, borderRadius: 12, padding: "1.2rem", flex: 1, minWidth: 120, border: "1px solid #E5E7EB", borderTop: `4px solid ${color}`, boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }),
@@ -369,12 +415,13 @@ export default function App() {
               </>
             )}
 
+            {/* LOGIN BUTTON UPDATED TO OPEN MODAL */}
             {!currentUser ? (
               <button 
                 style={{ background: "#fff", color: "#374151", border: "1px solid #D1D5DB", borderRadius: 8, padding: "8px 14px", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }} 
-                onClick={handleLogin}
+                onClick={() => setShowLoginModal(true)}
               >
-                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G" width={14}/> Login
+                Login
               </button>
             ) : (
               <button 
@@ -909,6 +956,48 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* LOGIN MODAL (OTP + Google) */}
+      {showLoginModal && (
+        <div style={s.modalOverlay} onClick={() => setShowLoginModal(false)}>
+          <div style={{ ...s.modalBox, textAlign: "center" }} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ fontSize: 20, fontWeight: 900, marginBottom: "1.5rem", color: "#111827" }}>Login to JobHub</h3>
+
+            {!confirmationResult ? (
+              <>
+                <label style={{ ...s.formLabel, textAlign: "left" }}>Phone Number</label>
+                <div style={{ display: "flex", gap: 10 }}>
+                  <span style={{ padding: "12px 14px", background: "#F3F4F6", border: "1px solid #D1D5DB", borderRadius: 8, fontSize: 15, color: "#374151", fontWeight: 600 }}>+91</span>
+                  <input style={{ ...s.formInput, marginBottom: 0 }} type="tel" placeholder="9876543210" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value.replace(/[^0-9]/g, ''))} maxLength={10} />
+                </div>
+                <button style={{ ...s.submitBtn, marginTop: "1rem" }} onClick={requestOTP}>Send OTP</button>
+
+                <div style={{ margin: "1.5rem 0", color: "#9CA3AF", fontSize: 13, fontWeight: 600, position: "relative", zIndex: 1 }}>
+                  <span style={{ background: "#fff", padding: "0 10px" }}>OR</span>
+                  <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 1, background: "#E5E7EB", zIndex: -1 }}></div>
+                </div>
+
+                <button 
+                  style={{ ...s.submitBtn, background: "#fff", color: "#374151", border: "1px solid #D1D5DB", boxShadow: "0 1px 2px rgba(0,0,0,0.05)", display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }} 
+                  onClick={() => { handleLogin(); setShowLoginModal(false); }}
+                >
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G" width={18}/> 
+                  Login with Google
+                </button>
+              </>
+            ) : (
+              <>
+                <label style={{ ...s.formLabel, textAlign: "left" }}>Enter 6-digit OTP</label>
+                <input style={s.formInput} type="number" placeholder="123456" value={otp} onChange={(e) => setOtp(e.target.value)} />
+                <button style={s.submitBtn} onClick={verifyOTP}>Verify & Login</button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* INVISIBLE RECAPTCHA FOR FIREBASE */}
+      <div id="recaptcha-container"></div>
 
       {/* TOAST */}
       <div style={s.toast}>{toast}</div>
